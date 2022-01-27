@@ -1,17 +1,19 @@
 // see SignupForm.js for comments
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { useMutation } from '@apollo/client';
-import { Form, Button, Alert } from "react-bootstrap";
 
-// import { loginUser } from '../utils/API';
-import { LOGIN_USER } from "../utils/mutation";
-import Auth from "../utils/auth";
+import Auth from '../utils/auth';
+
+import { LOGIN } from '../utils/mutation';
 
 const LoginForm = () => {
-  const [userFormData, setUserFormData] = useState({ email: "", password: "" });
-  const [login, { error }] = useMutation(LOGIN_USER);
+  const [userFormData, setUserFormData] = useState({ email: '', password: '' });
   const [validated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+
+  const [loginUser] = useMutation(LOGIN)
+  //  {error} removed this after [loginUser,]
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -27,23 +29,27 @@ const LoginForm = () => {
       event.preventDefault();
       event.stopPropagation();
     }
+
     try {
-      const { data } = await login({
-        variables: { ...userFormData },
-      });
-      Auth.login(data.login.token);
+      const {data} = await loginUser({variables: userFormData});
+      const {token, user} = data.login;
+      if (!token || !user) {
+        throw new Error('something went wrong!');
+      }
+
+      
+      Auth.login(token);
     } catch (err) {
-      console.error(error);
+      console.error(err);
       setShowAlert(true);
     }
 
     setUserFormData({
-      username: "",
-      email: "",
-      password: "",
+      username: '',
+      email: '',
+      password: '',
     });
   };
-
 
   return (
     <>
