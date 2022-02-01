@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
-import { useMutation } from '@apollo/client';
-import { LOGIN_USER} from '../utils/mutations';
-import Auth from '../utils/auth';
+// see SignupForm.js for comments
+import React, { useState } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
+
+import { useMutation } from "@apollo/client";
+import { LOGIN_USER } from "../utils/mutations";
+
+import Auth from "../utils/auth";
 
 const LoginForm = () => {
-  // set initial form state
-  const [userFormData, setUserFormData] = useState({ email: '', password: '' });
-  // set state for form validation
+  const [userFormData, setUserFormData] = useState({ email: "", password: "" });
   const [validated] = useState(false);
-  // set state for alert
   const [showAlert, setShowAlert] = useState(false);
-  // obtaining access to this mutation
-  const [login, {error}] = useMutation(LOGIN_USER);
+  const [login, { error }] = useMutation(LOGIN_USER);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -33,61 +32,64 @@ const LoginForm = () => {
       const { data } = await login({
         variables: { ...userFormData },
       });
-      const { token, user } = data.login;
-      if (!token || !user) {
-        throw new Error("Something went wrong with your login!");
-      }
 
-      Auth.login(token);
-    } catch (err) {
-      console.error(err);
-      setShowAlert(true);
+      Auth.login(data.login.token);
+    } catch (e) {
+      console.error(e);
     }
-    // resetting the form data
+
     setUserFormData({
-      username: '',
-      email: '',
-      password: '',
+      username: "",
+      email: "",
+      password: "",
     });
   };
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
-        <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
+        <Alert
+          dismissible
+          onClose={() => setShowAlert(false)}
+          show={showAlert}
+          variant="danger"
+        >
           Something went wrong with your login credentials!
         </Alert>
         <Form.Group>
-          <Form.Label htmlFor='email'>Email</Form.Label>
+          <Form.Label htmlFor="email">Email</Form.Label>
           <Form.Control
-            type='text'
-            placeholder='Your email'
-            name='email'
+            type="text"
+            placeholder="Your email"
+            name="email"
             onChange={handleInputChange}
             value={userFormData.email}
             required
           />
-          <Form.Control.Feedback type='invalid'>Email is required!</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">
+            Email is required!
+          </Form.Control.Feedback>
         </Form.Group>
 
         <Form.Group>
-          <Form.Label htmlFor='password'>Password</Form.Label>
+          <Form.Label htmlFor="password">Password</Form.Label>
           <Form.Control
-            type='password'
-            placeholder='Your password'
-            name='password'
+            type="password"
+            placeholder="Your password"
+            name="password"
             onChange={handleInputChange}
             value={userFormData.password}
             required
           />
-          <Form.Control.Feedback type='invalid'>Password is required!</Form.Control.Feedback>
+          <Form.Control.Feedback type="invalid">
+            Password is required!
+          </Form.Control.Feedback>
         </Form.Group>
         <Button
           disabled={!(userFormData.email && userFormData.password)}
-          type='submit'
-          variant='success'>
+          type="submit"
+          variant="success"
+        >
           Submit
         </Button>
       </Form>
